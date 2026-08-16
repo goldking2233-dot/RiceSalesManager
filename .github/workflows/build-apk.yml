@@ -1,4 +1,4 @@
-name: Build RiceSales Manager V5 Final
+name: Build RiceSales Manager Professional
 
 on:
   workflow_dispatch:
@@ -22,49 +22,34 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Extract project
+      - name: Extract project ZIP
         run: |
           set -e
-          unzip -q RiceSalesManager_V5_FINAL_FIXED.zip -d rice-project
-
-          echo "Project files:"
-          find rice-project -maxdepth 3 -type f | sort | head -100
+          unzip -q RiceSalesManager_Professional_V7.zip -d rice-project
+          echo "Project extracted"
 
       - name: Find project root
         run: |
           set -e
-
           PROJECT_DIR=$(dirname "$(find rice-project -name settings.gradle -type f -print -quit)")
-
-          if [ -z "$PROJECT_DIR" ]; then
-            echo "ERROR: settings.gradle not found"
-            exit 1
-          fi
-
           echo "PROJECT_DIR=$PROJECT_DIR"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
       - name: Build APK
         run: |
           set -e
-          gradle -p "$PROJECT_DIR" clean assembleDebug --stacktrace
+          gradle -p "$PROJECT_DIR" clean :app:assembleDebug --stacktrace
 
-      - name: Check APK
+      - name: Verify APK
         run: |
           set -e
-
           APK="$PROJECT_DIR/app/build/outputs/apk/debug/app-debug.apk"
-
-          if [ ! -f "$APK" ]; then
-            echo "ERROR: APK not found"
-            exit 1
-          fi
-
+          test -f "$APK"
           ls -lh "$APK"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: RiceSales-Manager-Final
+          name: RiceSales-Manager-Professional-V7
           path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
