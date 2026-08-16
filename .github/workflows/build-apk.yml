@@ -1,4 +1,4 @@
-name: Build Rice Shop APK
+name: Build RiceSales Manager APK
 
 on:
   workflow_dispatch:
@@ -24,7 +24,7 @@ jobs:
 
       - name: Extract project
         run: |
-          unzip -q RiceShopManager_V4_Complete.zip -d rice-project
+          unzip -q RiceSalesManager_V4_Logo_Complete.zip -d rice-project
           echo "Project files:"
           find rice-project -maxdepth 3 -type f | head -50
 
@@ -41,6 +41,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: rice-shop-debug-apk
+          name: RiceSales-Manager-Final
           path: rice-project/**/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
