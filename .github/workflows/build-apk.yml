@@ -1,4 +1,4 @@
-name: Build RiceSales Manager APK
+name: Build RiceSales Manager V5
 
 on:
   workflow_dispatch:
@@ -22,16 +22,14 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Extract project
+      - name: Extract project ZIP
         run: |
-          unzip -q RiceSalesManager_V4_Logo_Complete.zip -d rice-project
-          echo "Project files:"
-          find rice-project -maxdepth 3 -type f | head -50
+          unzip -q RiceSalesManager_V5_Customer.zip -d rice-project
+          find rice-project -name settings.gradle -type f -print
 
       - name: Build APK
         run: |
           PROJECT_DIR=$(dirname "$(find rice-project -name settings.gradle -type f | head -1)")
-          echo "Building from: $PROJECT_DIR"
           gradle -p "$PROJECT_DIR" assembleDebug
 
       - name: Find APK
@@ -41,6 +39,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: RiceSales-Manager-Final
+          name: RiceSales-Manager-V5-Customer
           path: rice-project/**/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
