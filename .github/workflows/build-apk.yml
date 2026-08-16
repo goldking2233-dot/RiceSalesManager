@@ -24,7 +24,7 @@ jobs:
 
       - name: Extract project ZIP
         run: |
-          unzip -q RiceSalesManager_V5_Customer_FIXED.zip -d rice-project
+          unzip -q RiceSalesManager_V5_Customer_FIXED2.zip -d rice-project
           find rice-project -name settings.gradle -type f -print
 
       - name: Build APK
