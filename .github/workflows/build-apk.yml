@@ -1,4 +1,4 @@
-name: Build RiceSales Manager V6
+name: Build RiceSales Manager V5 Final
 
 on:
   workflow_dispatch:
@@ -8,75 +8,63 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Java 17
+      - name: Set up Java
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Gradle 8.9
+      - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
-      - name: Locate final project ZIP
-        shell: bash
+      - name: Extract project
         run: |
           set -e
-          ZIP="RiceSalesManager_V5_FINAL.zip"
-          test -f "$ZIP" || {
-            echo "::error::Missing $ZIP in repository root."
-            exit 1
-          }
+          unzip -q RiceSalesManager_V5_FINAL_FIXED.zip -d rice-project
 
-          rm -rf rice-project
-          mkdir rice-project
-          unzip -q "$ZIP" -d rice-project
-
-          echo "Extracted project:"
+          echo "Project files:"
           find rice-project -maxdepth 3 -type f | sort | head -100
 
-      - name: Find Android project root
-        shell: bash
+      - name: Find project root
         run: |
           set -e
 
-          PROJECT_DIR="$(find rice-project -name settings.gradle -type f -print -quit | xargs -r dirname)"
+          PROJECT_DIR=$(dirname "$(find rice-project -name settings.gradle -type f -print -quit)")
 
-          test -n "$PROJECT_DIR" || {
-            echo "::error::settings.gradle not found."
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "ERROR: settings.gradle not found"
             exit 1
-          }
+          fi
 
+          echo "PROJECT_DIR=$PROJECT_DIR"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "Using project: $PROJECT_DIR"
 
-      - name: Build debug APK
-        shell: bash
+      - name: Build APK
         run: |
           set -e
           gradle -p "$PROJECT_DIR" clean assembleDebug --stacktrace
 
-      - name: Verify APK
-        shell: bash
+      - name: Check APK
         run: |
           set -e
 
           APK="$PROJECT_DIR/app/build/outputs/apk/debug/app-debug.apk"
 
-          test -f "$APK" || {
-            echo "::error::APK was not created."
+          if [ ! -f "$APK" ]; then
+            echo "ERROR: APK not found"
             exit 1
-          }
+          fi
 
           ls -lh "$APK"
 
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: RiceSales-Manager-V6-Final
+          name: RiceSales-Manager-Final
           path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
